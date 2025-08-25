@@ -1,0 +1,19 @@
+{
+  "name": "EmulatorJS Codespace with Netplay",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    }
+  },
+  "forwardPorts": [8080, 8081],
+  "postCreateCommand": "npm install && npm run build",
+  "workspaceFolder": "/workspaces/EmulatorJS",
+  "customizations": {
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}
