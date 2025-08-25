@@ -1,0 +1,12 @@
+[
+  {
+    "port": 8080,
+    "description": "EmulatorJS frontend",
+    "protocol": "https"
+  },
+  {
+    "port": 8081,
+    "description": "Netplay signaling server",
+    "protocol": "https"
+  }
+]
