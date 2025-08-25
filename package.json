@@ -1,0 +1,12 @@
+{
+  "name": "emulatorjs-codespace",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "npm run start"
+  },
+  "dependencies": {
+    "ws": "^8.0.0"
+  }
+}
