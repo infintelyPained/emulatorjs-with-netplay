@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>EmulatorJS Multiplayer Demo</title>
+  <style>
+    body { font-family: sans-serif; background: #222; color: #eee; text-align: center; }
+    #emulator-container { margin: 1em auto; }
+    canvas { background: #000; border: 2px solid #444; }
+    #rom-input { margin: 1em; }
+    #status { margin: 1em; color: #0f0; }
+  </style>
+</head>
+<body>
+  <h1>EmulatorJS Multiplayer Demo</h1>
+  <input type="file" id="rom-input" accept=".nes,.gba,.gb,.smc,.sfc,.zip,.bin,.gen,.md" />
+  <div id="status">No ROM loaded.</div>
+  <div id="emulator-container"></div>
+  <script src="emulator.js"></script>
+  <script>
+    // Example: Initialize EmulatorJS
+    const status = document.getElementById('status');
+    const container = document.getElementById('emulator-container');
+    let emulator;
+
+    document.getElementById('rom-input').addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      status.textContent = 'Loading ROM: ' + file.name;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        status.textContent = 'ROM loaded. Starting emulator...';
+        // EmulatorJS expects a Uint8Array
+        const romData = new Uint8Array(event.target.result);
+        if (emulator) emulator.stop();
+        emulator = new EmulatorJS({
+          container: container,
+          rom: romData,
+          netplay: {
+            signalingURL: 'ws://localhost:8081', // Use Codespaces public URL if needed
+            enabled: true
+          }
+        });
+        emulator.start();
+        status.textContent = 'Game running! Multiplayer enabled.';
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  </script>
+</body>
+</html>
