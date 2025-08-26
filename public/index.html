@@ -16,9 +16,9 @@
   <input type="file" id="rom-input" accept=".nes,.gba,.gb,.smc,.sfc,.zip,.bin,.gen,.md" />
   <div id="status">No ROM loaded.</div>
   <div id="emulator-container"></div>
-  <script src="emulator.js"></script>
+  <!-- Load EmulatorJS core (adjust path if needed) -->
+  <script src="../Emulator.js"></script>
   <script>
-    // Example: Initialize EmulatorJS
     const status = document.getElementById('status');
     const container = document.getElementById('emulator-container');
     let emulator;
@@ -30,19 +30,22 @@
       const reader = new FileReader();
       reader.onload = function(event) {
         status.textContent = 'ROM loaded. Starting emulator...';
-        // EmulatorJS expects a Uint8Array
-        const romData = new Uint8Array(event.target.result);
-        if (emulator) emulator.stop();
+        const romData = event.target.result;
+        if (emulator) {
+          emulator.stop();
+          container.innerHTML = '';
+        }
+        // EmulatorJS expects options, including ROM and netplay config
         emulator = new EmulatorJS({
           container: container,
           rom: romData,
           netplay: {
-            signalingURL: 'ws://localhost:8081', // Use Codespaces public URL if needed
+            signalingURL: 'ws://localhost:8081', // Use your Codespaces public URL for real multiplayer
             enabled: true
           }
         });
         emulator.start();
-        status.textContent = 'Game running! Multiplayer enabled.';
+        status.textContent = "Game running! Multiplayer enabled.";
       };
       reader.readAsArrayBuffer(file);
     });
