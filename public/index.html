@@ -2,50 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>EmulatorJS Multiplayer Demo</title>
+  <title>EmulatorJS Multiplayer Ready</title>
   <style>
     body { font-family: sans-serif; background: #222; color: #eee; text-align: center; }
     #emulator-container { margin: 1em auto; }
-    canvas { background: #000; border: 2px solid #444; }
     #rom-input { margin: 1em; }
     #status { margin: 1em; color: #0f0; }
+    canvas { border: 2px solid #444; background: #111; }
   </style>
 </head>
 <body>
-  <h1>EmulatorJS Multiplayer Demo</h1>
+  <h1>EmulatorJS Multiplayer</h1>
   <input type="file" id="rom-input" accept=".nes,.gba,.gb,.smc,.sfc,.zip,.bin,.gen,.md" />
   <div id="status">No ROM loaded.</div>
   <div id="emulator-container"></div>
-  <!-- Load EmulatorJS core (adjust path if needed) -->
-  <script src="../Emulator.js"></script>
+  <!-- Path must match your build output! -->
+  <script src="../data/loader.js"></script>
   <script>
-    const status = document.getElementById('status');
-    const container = document.getElementById('emulator-container');
-    let emulator;
+    let EJS_player = document.getElementById('emulator-container');
+    let config = {
+      gameUrl: '',          // Will be set below
+      system: '',           // Will be set below (e.g. 'gba', 'nes')
+      netplay: true,
+      netplayUrl: 'ws://localhost:8081', // Use Codespaces public URL for real multiplayer
+      // You can add more config options here
+    };
 
     document.getElementById('rom-input').addEventListener('change', function(e) {
       const file = e.target.files[0];
       if (!file) return;
-      status.textContent = 'Loading ROM: ' + file.name;
+      document.getElementById('status').textContent = 'Loading ROM: ' + file.name;
+      // Guess system from file extension
+      const ext = file.name.split('.').pop().toLowerCase();
+      if (['gba'].includes(ext)) config.system = 'gba';
+      else if (['nes', 'famicom'].includes(ext)) config.system = 'nes';
+      else if (['smc', 'sfc'].includes(ext)) config.system = 'snes';
+      else if (['gb'].includes(ext)) config.system = 'gb';
+      else config.system = 'auto';
+      // Load ROM as URL for loader.js
       const reader = new FileReader();
       reader.onload = function(event) {
-        status.textContent = 'ROM loaded. Starting emulator...';
-        const romData = event.target.result;
-        if (emulator) {
-          emulator.stop();
-          container.innerHTML = '';
+        // Blob URL for loader.js
+        const blobUrl = URL.createObjectURL(new Blob([event.target.result]));
+        config.gameUrl = blobUrl;
+        document.getElementById('status').textContent = 'Game running! Multiplayer enabled.';
+        // Loader.js global launch (see https://emulatorjs.org/docs/usage)
+        if (window.EJS_loadGame) {
+          window.EJS_loadGame(config, EJS_player);
+        } else {
+          // Fallback: reload loader.js if needed
+          location.reload();
         }
-        // EmulatorJS expects options, including ROM and netplay config
-        emulator = new EmulatorJS({
-          container: container,
-          rom: romData,
-          netplay: {
-            signalingURL: 'ws://localhost:8081', // Use your Codespaces public URL for real multiplayer
-            enabled: true
-          }
-        });
-        emulator.start();
-        status.textContent = "Game running! Multiplayer enabled.";
       };
       reader.readAsArrayBuffer(file);
     });
